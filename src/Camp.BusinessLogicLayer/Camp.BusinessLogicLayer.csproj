@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="libphonenumber-csharp" Version="8.12.53" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Camp.Common\Camp.Common.csproj" />
+    <ProjectReference Include="..\Camp.DataAccess\Camp.DataAccess.csproj" />
+    <ProjectReference Include="..\Camp.Security\Camp.Security.csproj" />
+  </ItemGroup>
+
+</Project>
