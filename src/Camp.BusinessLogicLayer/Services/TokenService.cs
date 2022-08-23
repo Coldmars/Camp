@@ -42,8 +42,10 @@ namespace Camp.BusinessLogicLayer.Services
             var claims = new List<Claim>
             {
                 new Claim("UserId", id),
-                new Claim(ClaimTypes.Name, name),
-                new Claim(ClaimTypes.Role, role)
+                //new Claim(ClaimTypes.Name, name),
+                //new Claim(ClaimTypes.Role, role)
+                new Claim("name", name),
+                new Claim("role", role)
             };
 
             return claims;

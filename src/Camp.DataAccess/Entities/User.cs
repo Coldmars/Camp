@@ -19,7 +19,7 @@
 
         public string Location { get; set; }
 
-        public DateTime CreateDate { get; set; }
+        public DateTimeOffset CreateDate { get; set; }
 
         public bool IsVerify { get; set; }
 

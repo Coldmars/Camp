@@ -57,7 +57,7 @@ namespace Camp.BusinessLogicLayer.Services
             var user = await _userRepository
                 .GetUserByCredentials(login, passwordHash)
                 .SingleOrDefaultAsync()
-                ?? throw new NotFoundException("User not found");
+                ?? throw new NotFoundException("User not found", "User_Exists");
 
             UserDto? parent = await GetParentDto(user.ParentId);
 
@@ -67,10 +67,14 @@ namespace Camp.BusinessLogicLayer.Services
             var token = _tokenService
                 .CreateAccessToken(user.Id.ToString(), user.Name, user.Role.Name);
 
+            var accessExpiresInDate = token.ValidTo;
+            var accessExpiresInTimestamp = ((DateTimeOffset)accessExpiresInDate)
+                .ToUnixTimeSeconds();
+
             var userWithToken = new UserWithTokenDto
             {
                 AccessToken = _tokenService.WriteAccessToken(token),
-                AccessExpiresIn = token.ValidTo,
+                AccessExpiresIn = accessExpiresInTimestamp,
                 Profile = profileDto
             };
 
@@ -102,7 +106,7 @@ namespace Camp.BusinessLogicLayer.Services
                 .FirstOrDefaultAsync();
 
             if (userWithSameLogin is not null)
-                throw new ValidateException("This login already exists.");
+                throw new ValidateException("This login already exists.", "Login_Exists");
         }
     }
 }

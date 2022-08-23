@@ -15,7 +15,7 @@ namespace Camp.BusinessLogicLayer.Validation
             bool isValidNumber = phoneUtil.IsValidNumber(phoneNumber);
 
             if (!isValidNumber)
-                throw new ValidateException("Invalid phone number");
+                throw new ValidateException("Invalid phone number", "Invalid_Phone");
         }
     }
 }

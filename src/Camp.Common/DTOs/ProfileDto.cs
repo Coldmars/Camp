@@ -10,7 +10,7 @@
 
         public bool IsVerify { get; set; }
 
-        public DateTime CreateDate { get; set; }
+        public /*DateTime*/ long CreateDate { get; set; }
 
         public UserDto Parent { get; set; }
     }

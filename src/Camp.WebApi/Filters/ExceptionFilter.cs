@@ -3,6 +3,7 @@ using Camp.Common.Wrappers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using System.Net;
+using WebException = Camp.Common.Exceptions.WebException;
 
 namespace Camp.WebApi.Filters
 {
@@ -26,21 +27,29 @@ namespace Camp.WebApi.Filters
             base.OnException(context);
         }
 
-        private Response GetResponse(Exception ex) =>
-            ex switch
+        private Response GetResponse(Exception ex)
+        {
+            if (ex is WebException wx)
             {
-                NotFoundException => CreateClientErrorResponse(ex.Message, HttpStatusCode.NotFound),
-                ValidateException => CreateClientErrorResponse(ex.Message, HttpStatusCode.BadRequest),
-                UnauthorizedException => CreateClientErrorResponse(ex.Message, HttpStatusCode.Unauthorized),
+                return ex switch
+                {
+                    NotFoundException => CreateClientErrorResponse(wx.Message, wx.MessageCode, HttpStatusCode.NotFound),
+                    ValidateException => CreateClientErrorResponse(wx.Message, wx.MessageCode, HttpStatusCode.BadRequest),
+                    UnauthorizedException => CreateClientErrorResponse(wx.Message, wx.MessageCode, HttpStatusCode.Unauthorized)
+                };
+            }
 
-                _ => CreateServerErrorResponse(ex.Message, ex.StackTrace, HttpStatusCode.InternalServerError)
-            };
+            return CreateServerErrorResponse(ex.Message, ex.StackTrace, HttpStatusCode.InternalServerError);
+        }
 
-        private ClientErrorResponse CreateClientErrorResponse(string message, HttpStatusCode code) =>
+        private ClientErrorResponse CreateClientErrorResponse(string message, 
+                                                              string messageCode, 
+                                                              HttpStatusCode code) =>
              new ClientErrorResponse
              {
                  StatusCode = (int)code,
                  Message = message,
+                 MessageCode = messageCode
              };
 
         private ServerErrorResponse CreateServerErrorResponse(string message, string stackTrace, HttpStatusCode code) =>

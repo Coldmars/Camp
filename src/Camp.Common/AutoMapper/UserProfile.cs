@@ -52,7 +52,7 @@ namespace Camp.Common.AutoMapper
                 opt => opt.MapFrom(src => src.IsVerify))
                 .ForMember(
                 dest => dest.CreateDate,
-                opt => opt.MapFrom(src => src.CreateDate));
+                opt => opt.MapFrom(src => src.CreateDate.ToUnixTimeSeconds()));
         }
     }
 }

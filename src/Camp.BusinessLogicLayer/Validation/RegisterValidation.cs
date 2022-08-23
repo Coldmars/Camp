@@ -9,14 +9,14 @@ namespace Camp.BusinessLogicLayer.Validation
         public void ValidateModel(RegisterUserModel model, int roleId)
         {
             if (model is null)
-                throw new ValidateException("Invalid register model.");
+                throw new ValidateException("Invalid register model.", "Invalid_Model");
 
             if (roleId <= 0 ||
                 roleId > ((int)Roles.Role.Volunteer))
-                throw new ValidateException("Invalid role.");
+                throw new ValidateException("Invalid role.", "Invalid_Role");
 
             if (model.Name is null)
-                throw new ValidateException("Name is required.");
+                throw new ValidateException("Name is required.", "Invalid_Name");
 
             if (roleId == ((int)Roles.Role.Squad))
                 ValidateSquadModel(model);
@@ -24,10 +24,15 @@ namespace Camp.BusinessLogicLayer.Validation
 
         private void ValidateSquadModel(RegisterUserModel model)
         {
-            if (model.Location is null ||
-                model.PhoneNumber is null)
+
+            if (model.Location is null)
             {
-                throw new ValidateException("Location and Phone fields are required.");
+                throw new ValidateException("Location is required.", "Invalid_Location");
+            }
+
+            if (model.PhoneNumber is null)
+            {
+                throw new ValidateException("Phone number is required.", "Invalid_Phone");
             }
 
             new PhoneNumberValidation().Validate(model.PhoneNumber);

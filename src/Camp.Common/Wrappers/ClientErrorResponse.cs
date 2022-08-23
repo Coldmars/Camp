@@ -2,6 +2,6 @@
 {
     public class ClientErrorResponse : Response
     {
-
+        public string MessageCode { get; set; }
     }
 }
