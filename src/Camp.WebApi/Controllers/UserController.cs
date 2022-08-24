@@ -49,5 +49,14 @@ namespace Camp.WebApi.Controllers
         public async Task<VolunteerProfilesListDto> GetSquadVolunteers() =>
             await _userService.GetVolunteersByUserId(UserID);
 
+        [HttpPost]
+        [Route("{userID}/verify")]
+        [Authorize(Roles = "Curator,Squad")]
+        public async Task VerifyUser([FromRoute] int userID, 
+                                     [FromBody] VerifyModel model)
+        {
+            await _userService.Verify(UserID, userID, model.IsVerify);
+        }
+
     }
 }

@@ -13,5 +13,9 @@ namespace Camp.BusinessLogicLayer.Services.Interfaces
         Task<SquadProfilesListDto> GetSquadsByUserId(int userId);
 
         Task<VolunteerProfilesListDto> GetVolunteersByUserId(int userId);
+
+        Task Verify(int userId,
+                    int verifiableUserId,
+                    bool verifityFlag);
     }
 }

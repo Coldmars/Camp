@@ -6,6 +6,7 @@ using Camp.DataAccess.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Camp.DataAccess.Enums;
 using static Camp.DataAccess.Enums.Roles;
+using Camp.Common.Exceptions;
 
 namespace Camp.BusinessLogicLayer.Services
 {
@@ -85,6 +86,43 @@ namespace Camp.BusinessLogicLayer.Services
                 .ToListAsync();
 
             return volunteersListDto;
+        }
+
+        public async Task Verify(int userId, 
+                                 int verifiableUserId, 
+                                 bool verifityFlag)
+        {
+            var parentUserRole = await _userRepository
+                .GetUserById(userId)
+                .Select(x => x.Role.Name)
+                .SingleOrDefaultAsync();
+
+            var user = await _userRepository
+                .GetUserById(verifiableUserId)
+                .SingleOrDefaultAsync()
+                ?? throw new NotFoundException("User not fouund", "User_Exists");
+
+            if (user.ParentId != userId)
+                throw new ForbiddenException("You may verify your entity only", "Verify_Error");
+
+            CheckRoleCompatibility(parentUserRole, user.Role.Name);
+
+            user.IsVerify = verifityFlag;
+            await _userRepository.UpdateUserAsync(user);
+        }
+
+        private void CheckRoleCompatibility(string parentRole, string childrenRole)
+        {
+            if (parentRole == Role.Curator.ToString())
+            {
+                if (childrenRole != Role.Squad.ToString())
+                    throw new ForbiddenException("You may verify only squads", "Verify_Error");
+            }
+            if (parentRole == Role.Squad.ToString())
+            {
+                if (childrenRole != Role.Volunteer.ToString())
+                    throw new ForbiddenException("You may verify only volunteers", "Verify_Error");
+            }
         }
 
         private async Task<UserDto?> GetParentDto(int? parentId)

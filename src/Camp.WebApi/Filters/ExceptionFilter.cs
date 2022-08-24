@@ -35,7 +35,8 @@ namespace Camp.WebApi.Filters
                 {
                     NotFoundException => CreateClientErrorResponse(wx.Message, wx.MessageCode, HttpStatusCode.NotFound),
                     ValidateException => CreateClientErrorResponse(wx.Message, wx.MessageCode, HttpStatusCode.BadRequest),
-                    UnauthorizedException => CreateClientErrorResponse(wx.Message, wx.MessageCode, HttpStatusCode.Unauthorized)
+                    UnauthorizedException => CreateClientErrorResponse(wx.Message, wx.MessageCode, HttpStatusCode.Unauthorized),
+                    ForbiddenException => CreateClientErrorResponse(wx.Message, wx.MessageCode, HttpStatusCode.Forbidden)
                 };
             }
 
