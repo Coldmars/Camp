@@ -9,5 +9,9 @@ namespace Camp.BusinessLogicLayer.Services.Interfaces
         Task<SquadsListDto> GetNotLockSquadsVerify();
 
         Task<dynamic> GetMe(int id);
+
+        Task<SquadProfilesListDto> GetSquadsByUserId(int userId);
+
+        Task<VolunteerProfilesListDto> GetVolunteersByUserId(int userId);
     }
 }

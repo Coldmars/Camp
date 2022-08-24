@@ -53,6 +53,46 @@ namespace Camp.Common.AutoMapper
                 .ForMember(
                 dest => dest.CreateDate,
                 opt => opt.MapFrom(src => src.CreateDate.ToUnixTimeSeconds()));
+
+            CreateMap<User, SquadDto>()
+                .ForMember(
+                dest => dest.Id,
+                opt => opt.MapFrom(src => src.Id))
+                .ForMember(
+                dest => dest.Name,
+                opt => opt.MapFrom(src => src.Name))
+                .ForMember(
+                dest => dest.Location,
+                opt => opt.MapFrom(src => src.Location))
+                .ForMember(
+                dest => dest.PhoneNumber,
+                opt => opt.MapFrom(src => src.PhoneNumber))
+                .ForMember(
+                dest => dest.IsVerify,
+                opt => opt.MapFrom(src => src.IsVerify))
+                .ForMember(
+                dest => dest.IsLock,
+                opt => opt.MapFrom(src => src.IsLock))
+                .ForMember(
+                dest => dest.CreateDate,
+                opt => opt.MapFrom(src => src.CreateDate.ToUnixTimeSeconds()));
+
+            CreateMap<User, VolunteerDto>()
+                .ForMember(
+                dest => dest.Id,
+                opt => opt.MapFrom(src => src.Id))
+                .ForMember(
+                dest => dest.Name,
+                opt => opt.MapFrom(src => src.Name))
+                .ForMember(
+                dest => dest.IsVerify,
+                opt => opt.MapFrom(src => src.IsVerify))
+                .ForMember(
+                dest => dest.IsLock,
+                opt => opt.MapFrom(src => src.IsLock))
+                .ForMember(
+                dest => dest.CreateDate,
+                opt => opt.MapFrom(src => src.CreateDate.ToUnixTimeSeconds()));
         }
     }
 }

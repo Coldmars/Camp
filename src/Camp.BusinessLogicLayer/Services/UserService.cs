@@ -5,6 +5,7 @@ using AutoMapper.QueryableExtensions;
 using Camp.DataAccess.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Camp.DataAccess.Enums;
+using static Camp.DataAccess.Enums.Roles;
 
 namespace Camp.BusinessLogicLayer.Services
 {
@@ -25,7 +26,7 @@ namespace Camp.BusinessLogicLayer.Services
             var curatorsListDto = new CuratorsListDto();
 
             curatorsListDto.Curators = await _userRepository
-                .GetUsersByRole(((int)Roles.Role.Curator))
+                .GetUsersByRole(((int)Role.Curator))
                 .ProjectTo<UserDto>(_mapper.ConfigurationProvider)
                 .ToListAsync();
 
@@ -37,7 +38,7 @@ namespace Camp.BusinessLogicLayer.Services
             var squadsListDto = new SquadsListDto();
 
             squadsListDto.Squads = await _userRepository
-                .GetUsersByRole(((int)Roles.Role.Squad))
+                .GetUsersByRole(((int)Role.Squad))
                 .Where(s => !s.IsLock)
                 .Where(s => (bool)s.IsVerify)
                 .ProjectTo<UserDto>(_mapper.ConfigurationProvider)
@@ -58,6 +59,32 @@ namespace Camp.BusinessLogicLayer.Services
             profileDto.Parent = parent;
 
             return new { Profile = profileDto };
+        }
+
+        public async Task<SquadProfilesListDto> GetSquadsByUserId(int userId)
+        {
+            var squadsListDto = new SquadProfilesListDto();
+
+            squadsListDto.Squads = await _userRepository
+                .GetUsersByRole((int)Role.Squad)
+                .Where(s => s.ParentId == userId)
+                .ProjectTo<SquadDto>(_mapper.ConfigurationProvider)
+                .ToListAsync();
+
+            return squadsListDto;
+        }
+
+        public async Task<VolunteerProfilesListDto> GetVolunteersByUserId(int userId)
+        {
+            var volunteersListDto = new VolunteerProfilesListDto();
+
+            volunteersListDto.Volunteers = await _userRepository
+                .GetUsersByRole((int)Role.Volunteer)
+                .Where(s => s.ParentId == userId)
+                .ProjectTo<VolunteerDto>(_mapper.ConfigurationProvider)
+                .ToListAsync();
+
+            return volunteersListDto;
         }
 
         private async Task<UserDto?> GetParentDto(int? parentId)

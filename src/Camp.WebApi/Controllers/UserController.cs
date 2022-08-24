@@ -1,8 +1,10 @@
 ﻿using Camp.BusinessLogicLayer.Services.Interfaces;
 using Camp.Common.DTOs;
 using Camp.Common.Models;
+using Camp.DataAccess.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using static Camp.DataAccess.Enums.Roles;
 
 namespace Camp.WebApi.Controllers
 {
@@ -34,6 +36,18 @@ namespace Camp.WebApi.Controllers
         [Route("me")]
         public async Task<dynamic> GetMe() =>
             await _userService.GetMe(UserID);
-        
+
+        [HttpGet]
+        [Route("me/squads")]
+        [Authorize(Roles = "Curator")]
+        public async Task<SquadProfilesListDto> GetCuratorSquads() =>
+            await _userService.GetSquadsByUserId(UserID);
+
+        [HttpGet]
+        [Route("me/volunteers")]
+        [Authorize(Roles = "Squad")]
+        public async Task<VolunteerProfilesListDto> GetSquadVolunteers() =>
+            await _userService.GetVolunteersByUserId(UserID);
+
     }
 }
