@@ -79,6 +79,14 @@ namespace Camp.BusinessLogicLayer.Services
         {
             var volunteersListDto = new VolunteerProfilesListDto();
 
+            var squadVerifyStatus = await _userRepository
+                .GetUserById(userId)
+                .Select(x => x.IsVerify)
+                .SingleOrDefaultAsync();
+
+            if (!squadVerifyStatus)
+                throw new ForbiddenException("Squad must be verify", "User_Verify");
+
             volunteersListDto.Volunteers = await _userRepository
                 .GetUsersByRole((int)Role.Volunteer)
                 .Where(s => s.ParentId == userId)
@@ -92,10 +100,14 @@ namespace Camp.BusinessLogicLayer.Services
                                  int verifiableUserId, 
                                  bool verifityFlag)
         {
-            var parentUserRole = await _userRepository
+            var parent = await _userRepository
                 .GetUserById(userId)
-                .Select(x => x.Role.Name)
                 .SingleOrDefaultAsync();
+
+            if (!parent.IsVerify)
+                throw new ForbiddenException("Squad must be verify", "User_Verify");
+
+            var parentUserRole = parent.Role.Name;
 
             var user = await _userRepository
                 .GetUserById(verifiableUserId)

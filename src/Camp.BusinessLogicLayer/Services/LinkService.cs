@@ -1,14 +1,10 @@
 ﻿using Camp.BusinessLogicLayer.Services.Interfaces;
 using Camp.Common.DTOs;
-using AutoMapper;
-using AutoMapper.QueryableExtensions;
 using Camp.DataAccess.Repositories;
 using Microsoft.EntityFrameworkCore;
-using Camp.DataAccess.Enums;
-using static Camp.DataAccess.Enums.Roles;
-using Camp.Common.Exceptions;
 using Camp.DataAccess.Entities;
 using Role = Camp.DataAccess.Enums.Roles.Role;
+using Camp.Common.Exceptions;
 
 namespace Camp.BusinessLogicLayer.Services
 {
@@ -26,38 +22,35 @@ namespace Camp.BusinessLogicLayer.Services
 
         public async Task<LinkCheckDto> CheckLinkAsync(int volunteerId, string url)
         {
+            var volunteer = await _userRepository
+                .GetUserById(volunteerId)
+                .SingleOrDefaultAsync()
+                ?? throw new NotFoundException("User not found", "User_Exists");
+
+            if (volunteer.IsVerify is false)
+                throw new ForbiddenException("User must be verify", "User_Verify");
+
             var linkCheckDto = new LinkCheckDto();
-            var link = await _linkRepository.GetLinkByUrl(url).SingleOrDefaultAsync();
+            var link = await _linkRepository
+                .GetLinkByUrl(url)
+                .SingleOrDefaultAsync();
 
             if (link == null)
             {
-                link = new Link
-                {
-                    Url = url,
-                    IsLock = false,
-                    LockDate = null
-                };
-
+                link = CreateLink(url);
                 await _linkRepository.AddLinkAsync(link);
             }
 
-            var query = await _linkRepository.GetChecksByLinkId(link.Id)
-                .Where(ul => ul.CheckedByRoleId == ((int)Role.Volunteer))
+            var linkChecks = await _linkRepository
+                .GetChecksByLinkId(link.Id)
+                .Where(ul => 
+                       ul.CheckedByRoleId == ((int)Role.Volunteer))
                 .OrderByDescending(d => d.CheckDate)
                 .ToListAsync();
 
+            linkCheckDto = SetFieldsFrom(linkChecks);
 
-            linkCheckDto.CheckCount = query.Count;
-            if (linkCheckDto.CheckCount > 0)
-                linkCheckDto.LastCheckAt = query.FirstOrDefault().CheckDate;
-            else 
-                linkCheckDto.LastCheckAt = null;
-            linkCheckDto.BlockAt = link.LockDate;
-
-            var squadId = await _userRepository
-                .GetUserById(volunteerId)
-                .Select(u => u.ParentId)
-                .SingleOrDefaultAsync();
+            var squadId = volunteer.ParentId;
 
             var checkTime = DateTime.Now;
 
@@ -83,6 +76,30 @@ namespace Camp.BusinessLogicLayer.Services
             await _linkRepository.CommitTransactionAsync();
 
             return linkCheckDto;
-        }  
+        } 
+        
+        private LinkCheckDto SetFieldsFrom(List<UserLink> linkChecks)
+        {
+            var dto = new LinkCheckDto();
+
+            dto.CheckCount = linkChecks.Count;
+            if (dto.CheckCount > 0)
+                dto.LastCheckAt = linkChecks.FirstOrDefault().CheckDate;
+            else
+                dto.LastCheckAt = null;
+            dto.BlockAt = null;
+
+            return dto;
+        }
+
+        private Link CreateLink(string url)
+        {
+            return new Link
+            {
+                Url = url,
+                IsLock = false,
+                LockDate = null
+            };
+        } 
     }
 }
