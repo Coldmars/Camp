@@ -66,11 +66,13 @@ builder.Services.AddSwaggerGen(swagger =>
 });
 builder.Services.AddDbContext<DataContext>(x => x.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<ILinkRepository, LinkRepository>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 //builder.Services.AddScoped<ITokenBuilder, TokenBuilder>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<ILoginService, LoginService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<ILinkService, LinkService>();
 builder.Services.AddIdentityServices(builder.Configuration);
 builder.Services.AddAutoMapper(typeof(UserProfile).Assembly);
 

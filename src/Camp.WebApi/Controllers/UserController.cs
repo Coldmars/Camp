@@ -14,10 +14,12 @@ namespace Camp.WebApi.Controllers
     public class UserController : IdentityController
     {
         private readonly IUserService _userService;
+        private readonly ILinkService _linkService;
 
-        public UserController(IUserService userService)
+        public UserController(IUserService userService, ILinkService linkService)
         {
             _userService = userService;
+            _linkService = linkService;
         }
 
         [AllowAnonymous]
@@ -58,5 +60,10 @@ namespace Camp.WebApi.Controllers
             await _userService.Verify(UserID, userID, model.IsVerify);
         }
 
+        [HttpPost]
+        [Route("linka")]
+        [Authorize(Roles = "Volunteer")]
+        public async Task<LinkCheckDto> CheckLink([FromBody] LinkModel model) =>
+            await _linkService.CheckLinkAsync(UserID, model.Url);
     }
 }

@@ -16,6 +16,10 @@ namespace Camp.DataAccess.Data
 
         public DbSet<Role> Roles { get; set; }
 
+        public DbSet<Link> Links { get; set; }
+
+        public DbSet<UserLink> UserLinks { get; set; }
+
         public static readonly ILoggerFactory ConsoleLoggerFactory =
             LoggerFactory.Create(builder =>
             {
