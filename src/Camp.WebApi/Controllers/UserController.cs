@@ -1,10 +1,8 @@
 ﻿using Camp.BusinessLogicLayer.Services.Interfaces;
 using Camp.Common.DTOs;
 using Camp.Common.Models;
-using Camp.DataAccess.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using static Camp.DataAccess.Enums.Roles;
 
 namespace Camp.WebApi.Controllers
 {
@@ -14,12 +12,10 @@ namespace Camp.WebApi.Controllers
     public class UserController : IdentityController
     {
         private readonly IUserService _userService;
-        private readonly ILinkService _linkService;
 
-        public UserController(IUserService userService, ILinkService linkService)
+        public UserController(IUserService userService)
         {
             _userService = userService;
-            _linkService = linkService;
         }
 
         [AllowAnonymous]
@@ -59,11 +55,5 @@ namespace Camp.WebApi.Controllers
         {
             await _userService.Verify(UserID, userID, model.IsVerify);
         }
-
-        [HttpPost]
-        [Route("linka")]
-        [Authorize(Roles = "Volunteer")]
-        public async Task<LinkCheckDto> CheckLink([FromBody] LinkModel model) =>
-            await _linkService.CheckLinkAsync(UserID, model.Url);
     }
 }
