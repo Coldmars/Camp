@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="CloudinaryDotNet" Version="1.19.0" />
     <PackageReference Include="libphonenumber-csharp" Version="8.12.53" />
   </ItemGroup>
 
