@@ -6,6 +6,8 @@ namespace Camp.DataAccess.Repositories
     {
         Task<User> AddUser(User user);
 
+        Task UpdateUserAsync(User user);
+
         IQueryable<User> GetUserById(int userId);
 
         IQueryable<User> GetUserByCredentials(string login, string passwordHash);

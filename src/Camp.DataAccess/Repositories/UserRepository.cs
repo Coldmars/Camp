@@ -20,6 +20,12 @@ namespace Camp.DataAccess.Repositories
             return user;
         }
 
+        public async Task UpdateUserAsync(User user)
+        {
+            _context.Users.Update(user);
+            await _context.SaveChangesAsync();
+        }
+
         public IQueryable<User> GetUserById(int userId)
         {
             return _context

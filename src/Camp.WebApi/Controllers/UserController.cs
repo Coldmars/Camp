@@ -34,6 +34,26 @@ namespace Camp.WebApi.Controllers
         [Route("me")]
         public async Task<dynamic> GetMe() =>
             await _userService.GetMe(UserID);
-        
+
+        [HttpGet]
+        [Route("me/squads")]
+        [Authorize(Roles = "Curator")]
+        public async Task<SquadProfilesListDto> GetCuratorSquads() =>
+            await _userService.GetSquadsByUserId(UserID);
+
+        [HttpGet]
+        [Route("me/volunteers")]
+        [Authorize(Roles = "Squad")]
+        public async Task<VolunteerProfilesListDto> GetSquadVolunteers() =>
+            await _userService.GetVolunteersByUserId(UserID);
+
+        [HttpPost]
+        [Route("{userID}/verify")]
+        [Authorize(Roles = "Curator,Squad")]
+        public async Task VerifyUser([FromRoute] int userID, 
+                                     [FromBody] VerifyModel model)
+        {
+            await _userService.Verify(UserID, userID, model.IsVerify);
+        }
     }
 }
