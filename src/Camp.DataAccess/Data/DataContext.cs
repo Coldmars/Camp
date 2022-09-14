@@ -20,6 +20,8 @@ namespace Camp.DataAccess.Data
 
         public DbSet<UserLink> UserLinks { get; set; }
 
+        public DbSet<Image> Images { get; set; }
+
         public static readonly ILoggerFactory ConsoleLoggerFactory =
             LoggerFactory.Create(builder =>
             {
