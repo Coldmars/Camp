@@ -15,6 +15,7 @@ namespace Camp.WebApi.Extensions
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<ILinkRepository, LinkRepository>();
             services.AddScoped<IImageRepository, ImageRepository>();
+            services.AddScoped<IReportRepository, ReportRepository>();
             services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<IPasswordHasher, PasswordHasher>();
             services.AddScoped<ILoginService, LoginService>();

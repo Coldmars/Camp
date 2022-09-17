@@ -6,6 +6,7 @@
         {
             Children = new List<User>();
             UserLinks = new List<UserLink>();
+            Reports = new List<Report>();
         }
 
         public int Id { get; set; }
@@ -41,5 +42,7 @@
         public int RoleId { get; set; }
 
         public ICollection<UserLink> UserLinks { get; set; }
+
+        public ICollection<Report> Reports { get; set; }
     }
 }

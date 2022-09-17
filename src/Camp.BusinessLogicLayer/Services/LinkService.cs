@@ -6,19 +6,26 @@ using Camp.DataAccess.Entities;
 using Role = Camp.DataAccess.Enums.Roles.Role;
 using Camp.Common.Exceptions;
 using Camp.BusinessLogicLayer.Validation;
+using Camp.DataAccess.Enums;
 
 namespace Camp.BusinessLogicLayer.Services
 {
     public class LinkService : ILinkService
     {
-        private readonly ILinkRepository _linkRepository;
-        private readonly IUserRepository _userRepository;
+        private readonly ILinkRepository _links;
+        private readonly IUserRepository _users;
+        private readonly IReportRepository _reports;
+        private readonly IImageRepository _images;
 
         public LinkService(ILinkRepository linkRepository, 
-                           IUserRepository userRepository)
+                           IUserRepository userRepository,
+                           IReportRepository reports,
+                           IImageRepository images)
         {
-            _linkRepository = linkRepository;
-            _userRepository = userRepository;
+            _links = linkRepository;
+            _users = userRepository;
+            _reports = reports;
+            _images = images;
         }
 
         public async Task<LinkCheckDto> CheckLinkAsync(int volunteerId, string url)
@@ -46,9 +53,66 @@ namespace Camp.BusinessLogicLayer.Services
             return linkCheckDto;
         }
 
+        public async Task BlockLink(int userId,
+                                    string url,
+                                    string comment,
+                                    TypesEnum.Type type,
+                                    List<GenresEnum.Genres> genres,
+                                    int imageId)
+        {
+            var typeId = (int)type;
+            var genreIds = genres.Select(g => (int)g);
+            var IsGenresInvalid = genreIds.Any(g => g == 0);
+
+            if (typeId == 0)
+                throw new ValidateException("Invalid type", "Invalid_Type");
+            if (IsGenresInvalid)
+                throw new ValidateException("Invalid genres", "Invalid_Genres");
+
+            // Validate report here 
+
+            var link = await _links
+                .GetLinkByUrl(url)
+                .SingleOrDefaultAsync();
+
+            if (link is null)
+                throw new ForbiddenException("You must check the link before blocking", "Link_Block");
+            if (link.IsLock)
+                throw new ForbiddenException("This link have already blocked", "Link_Block");
+
+            var image = await _images
+                .GetImageById(imageId)
+                .SingleOrDefaultAsync();
+
+            if (image is null)
+                throw new ValidateException("Image does not exist", "Report_Validate");
+
+            var user = GetVerifiedVolunteer(userId);
+
+            var blockTime = DateTime.Now;
+
+            link.IsLock = true;
+            link.LockDate = blockTime;
+            await _links.UpdateLink(link);
+
+            var report = new Report
+            {
+                Url = url,
+                UserId = userId,
+                Comment = comment,
+                TypeId = typeId,
+                ImageId = imageId,
+                Time = blockTime
+            };
+
+            await _reports.AddReport(report);
+
+            await AddGenresToReport(genreIds, report.Id);
+        }
+
         private async Task<User> GetVerifiedVolunteer(int id)
         {
-            var volunteer = await _userRepository
+            var volunteer = await _users
                 .GetUserById(id)
                 .SingleOrDefaultAsync()
                 ?? throw new NotFoundException("User not found", "User_Exists");
@@ -61,14 +125,14 @@ namespace Camp.BusinessLogicLayer.Services
 
         private async Task<Link> GetLinkOrCreateIfNull(string url)
         {
-            var link = await _linkRepository
+            var link = await _links
                 .GetLinkByUrl(url)
                 .SingleOrDefaultAsync();
 
             if (link == null)
             {
                 link = CreateLink(url);
-                await _linkRepository.AddLinkAsync(link);
+                await _links.AddLinkAsync(link);
             }
 
             return link;
@@ -76,7 +140,7 @@ namespace Camp.BusinessLogicLayer.Services
 
         private async Task<List<UserLink>> GetCheckRecords(int linkId)
         {
-            return await _linkRepository
+            return await _links
                 .GetChecksByLinkId(linkId)
                 .Where(ul =>
                        ul.CheckedByRoleId == ((int)Role.Volunteer))
@@ -101,10 +165,24 @@ namespace Camp.BusinessLogicLayer.Services
         private async Task SaveCheckRecords(UserLink volunteerCheckRecord,
                                            UserLink squadCheckRecord)
         {
-            await _linkRepository.BeginTransactionAsync();
-            await _linkRepository.AddLinkCheckAsync(volunteerCheckRecord);
-            await _linkRepository.AddLinkCheckAsync(squadCheckRecord);
-            await _linkRepository.CommitTransactionAsync();
+            await _links.BeginTransactionAsync();
+            await _links.AddLinkCheckAsync(volunteerCheckRecord);
+            await _links.AddLinkCheckAsync(squadCheckRecord);
+            await _links.CommitTransactionAsync();
+        }
+
+        private async Task AddGenresToReport(IEnumerable<int> genreIds, int reportId)
+        {
+            foreach (var genreId in genreIds)
+            {
+                var reportGenre = new ReportGenre
+                {
+                    ReportId = reportId,
+                    GenreId = genreId
+                };
+
+                await _reports.AddReportGenre(reportGenre);
+            }
         }
 
         private Link CreateLink(string url)

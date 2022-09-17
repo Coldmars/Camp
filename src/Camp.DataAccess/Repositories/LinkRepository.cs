@@ -26,6 +26,12 @@ namespace Camp.DataAccess.Repositories
             await _context.SaveChangesAsync();
         }
 
+        public async Task UpdateLink(Link link)
+        {
+            _context.Links.Update(link);
+            await _context.SaveChangesAsync();
+        }
+
         public IQueryable<Link> GetLinkByUrl(string url)
         {
             return _context.Links
