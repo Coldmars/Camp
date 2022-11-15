@@ -1,0 +1,19 @@
+version: '3.4'
+
+services:
+    proddb:
+        image: ashmansurov/camp_docker_repos:firsttry
+        environment:
+            - SA_PASSWORD=c.C.Catch*89
+            - ACCEPT_EULA=Y
+        ports:
+            - "1440:1433"
+    camp.webapi:
+        image: ashmansurov/camp_docker_repos:api
+        ports:
+           - "5000-5001:5000-5001"
+        build:
+            context: .
+            dockerfile: src/Camp.WebApi/Dockerfile
+        depends_on:
+            - proddb

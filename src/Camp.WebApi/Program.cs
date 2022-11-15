@@ -27,14 +27,21 @@ builder.Services.AddIdentityServices(builder.Configuration);
 builder.Services.AddAutoMapper(typeof(UserProfile).Assembly);
 
 
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+using (var scope = app.Services.CreateScope())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    var dataContext = scope.ServiceProvider.GetRequiredService<DataContext>();
+    dataContext.Database.Migrate();
 }
+
+// Configure the HTTP request pipeline.
+
+
+app.UseSwagger();
+app.UseSwaggerUI();
+
 
 app.UseHttpsRedirection();
 

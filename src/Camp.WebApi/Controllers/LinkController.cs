@@ -28,9 +28,9 @@ namespace Camp.WebApi.Controllers
         [HttpPost]
         [Route("block")]
         [Authorize(Roles = "Volunteer")]
-        public async Task Testing([FromQuery] TypesEnum.Type type, 
-                               [FromQuery] List<GenresEnum.Genres> genres,
-                               [FromBody] ReportModel model)
+        public async Task Testing(/*[FromQuery] TypesEnum.Type type,*/
+                                  [FromQuery] List<GenresEnum.Genres> genres,
+                                  [FromBody] ReportModel model)
         {
             //return new
             //{
@@ -42,7 +42,7 @@ namespace Camp.WebApi.Controllers
             //    }
             //};
 
-            await _linkService.BlockLink(UserID, model.Url, model.Comment, type, genres, model.ImageId);
+            await _linkService.BlockLink(UserID, model.Url, model.Comment, model.Type, genres, model.ImageId);
         }
     }
 }
